@@ -9,41 +9,36 @@ function App() {
   const [currentSong, setCurrentSong] = useState({})
   const [searchTerm, setSearchTerm] = useState('')
   const [musicData, setMusicData] = useState({})
-  const [searchLinks, setSearchLinks] = useState([])
+  const [suggestions, setSuggestions] = useState([])
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  
+  let searchBarEntryTimeoutId;
 
-  const handleSubmit = e => {
-    e.preventDefault()
-    // Do something with the search term, such as sending it to a server or updating state
-    axios
-      .get('http://localhost:3000/search', {
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode)
+  }
+
+  const handleSearchBarSubmit = async e => {
+    e.preventDefault();
+    try {
+      const response = await axios.get('http://localhost:3000/search', {
         params: {
           q: searchTerm,
         },
-      })
-      .then(response => handleSearchResult(response))
-      .catch(error => console.log(error))
-  }
+      });
+      handleSearchResult(response);
+      
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
 
   const handleSearchResult = response => {
-    console.log(response.data) // handle the response data here
     const musicData = response.data
     setMusicData(musicData)
+    localStorage.setItem('currentSong', JSON.stringify(musicData))
   }
-
-  // Save currentSong in localStorage every time it changes
-  useEffect(() => {
-    if(Object.keys(currentSong).length == 0){
-      let defaultSong = {
-        id:761087,
-        full_title:"Yo No Sé Mañana by Luis Enrique"
-      }
-
-      localStorage.setItem('currentSong', JSON.stringify(defaultSong))
-    }else{
-      localStorage.setItem('currentSong', JSON.stringify(currentSong))
-    }
-    
-  }, [currentSong])
 
   // Load saved song from localStorage when the component mounts
   useEffect(() => {
@@ -53,53 +48,69 @@ function App() {
     }
   }, [])
 
-  const handleChange = async(e) => {
-      setSearchTerm(e.target.value)
-      let songTitleSuggestions = []
-      let suggestionLinks = []
+  
+
+  const handleSearchBarChange = async(e) => {
+    clearTimeout(searchBarEntryTimeoutId); // clear previous timeout if there is any
+  
+    setSearchTerm(e.target.value);
+  
+    searchBarEntryTimeoutId = setTimeout(async () => {
+      let songTitleSuggestions = [];
+      let suggestionLinks = [];
+  
       const response = await axios.get('http://localhost:3000/searchAll', {
-          params: {
-            q: e.target.value,
-          },
-        });
-        const matches = response.data
-        matches.map(hit =>{
-          const suggestion = hit.result;
-          songTitleSuggestions.push(suggestion.full_title)
-          let link = {
-            id:suggestion.id,
-            title:suggestion.full_title
-          }
-          suggestionLinks.push(link)
-        })
-        console.log(matches)
-        console.log(suggestionLinks)
-        setSearchLinks(suggestionLinks)
-        e.target.value = ""
-    
+        params: {
+          q: e.target.value,
+        },
+      });
+  
+      const matches = response.data;
+      matches.map(hit =>{
+        const suggestion = hit.result;
+        songTitleSuggestions.push(suggestion.full_title);
+        let link = {
+          id:suggestion.id,
+          title:suggestion.full_title
+        };
+        suggestionLinks.push(link);
+      });
+        
+      setSuggestions(suggestionLinks);
+      e.target.value = "";
+    }, 1000); // wait for 1 second before making the API request
   }
 
   const onClickSuggestion = (suggestion) => {
+    clearTimeout(searchBarEntryTimeoutId);
     setSearchTerm(suggestion.title)
-    setSearchLinks([])
+    setSuggestions([])
+    
+    setTimeout(()=>{
+      document.getElementById('search-btn').click();
+      setSuggestions([])
+      setSearchTerm("")
+    }, 500)
   }
 
   return (
-    <div className="App">
+    <div className={`App ${isDarkMode ? 'light-mode' : 'dark-mode'}`}>
       <div class="dashboard">
         <div class="header">
           <div class="logo"></div>
-          <form onSubmit={handleSubmit} className="search-form">
+          
+          <form onSubmit={handleSearchBarSubmit} className="search-form" id="search-form">
             <div className="search-bar">
               <input
                 type="text"
                 placeholder="Search"
                 value={searchTerm}
-                onChange={handleChange}
+                onChange={handleSearchBarChange}
+                onBlur={() => setSuggestions([])}
               />
-              {searchLinks.length > 0 && (
+              {suggestions.length > 0 && (
                 <div className="search-dropdown">
-                  {searchLinks.map((result, index) => (
+                  {suggestions.map((result, index) => (
                     <div key={index} className="search-dropdown-item">
                       <a href="#" onClick={() => {
                         onClickSuggestion(result)
@@ -108,7 +119,7 @@ function App() {
                   ))}
                 </div>
               )}
-              <button type="submit" className="search-btn">
+              <button type="submit" className="search-btn" id="search-btn">
                 <i className="fa fa-search"></i>
               </button>
             </div>
@@ -117,6 +128,7 @@ function App() {
           <div class="nav-buttons">
             <button onClick={() => setCurrentPage('home')} class="home-btn">Home</button>
             <button onClick={() => setCurrentPage('favorites')} class="favorites-btn">Favorites</button>
+            
           </div>
         </div>
         {currentPage === 'home' ? (

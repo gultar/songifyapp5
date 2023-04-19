@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const FavoriteButton = ({ song }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState(JSON.parse(localStorage.getItem("favorites")) || []);
 
   useEffect(() => {
     setFavorites(JSON.parse(localStorage.getItem("favorites")) || []);
@@ -12,33 +12,40 @@ const FavoriteButton = ({ song }) => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  const handleFavourite = (e) => {
-    setIsFavorite(e.target.checked);
-    console.log('Is favorite?',e.target.checked)
-    if (e.target.checked) {
-      addToFavorites(song);
-    } else {
+  useEffect(() => {
+    setIsFavorite(favorites.some((favorite) => favorite.id === song.id));
+  }, [favorites, song]);
+
+  const toggleFavorite = () => {
+    if (isFavorite) {
       removeFromFavorites(song);
+    } else {
+      addToFavorites(song);
     }
   };
 
-  function addToFavorites(song) {
+  const addToFavorites = (song) => {
     setFavorites([...favorites, song]);
-  }
+  };
 
-  function removeFromFavorites(song) {
+  const removeFromFavorites = (song) => {
     const updatedFavorites = favorites.filter((favorite) => favorite.id !== song.id);
     setFavorites(updatedFavorites);
-  }
+  };
 
   return (
     <label>
-      Add to favorites:
-      <input
-        type="checkbox"
-        checked={isFavorite}
-        onChange={handleFavourite}
-      />
+      {isFavorite ? (
+        <>
+          
+          <button onClick={toggleFavorite}>-</button>Remove from favorites:
+        </>
+      ) : (
+        <>
+          
+          <button onClick={toggleFavorite}>+</button>Add to favorites:
+        </>
+      )}
     </label>
   );
 };

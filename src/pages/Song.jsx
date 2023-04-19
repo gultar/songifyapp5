@@ -19,14 +19,14 @@ const extractSongFromData = (musicData)=>{
 function Song({ musicData }) {
     const [gifSrc, setGifSrc] = useState("")
     const [lyrics, setLyrics] = useState("")
+    const [isFavorite, setIsFavorite] = useState(false)
 
     const song = extractSongFromData(musicData)
-    const searchTerm = song.title || "Chale Eden Muñoz"
+    const searchTerm = song.title
 
     useEffect(()=>{
-        
         getLyrics(song.title, song.artists)
-    },[gifSrc, searchTerm])
+    },[searchTerm])
 
 
     const getGif = async (searchTerm) => {
@@ -36,8 +36,6 @@ function Song({ musicData }) {
               q: searchTerm,
             },
           });
-          
-          console.log(response.data); // handle the response data here
       
           const { images } = response.data;
           const { original } = images;
@@ -56,8 +54,6 @@ function Song({ musicData }) {
             },
           });
           
-          console.log(response.data); // handle the response data here
-      
           const {lyrics} = response.data;
           setLyrics(lyrics);
           getGif(song.title)
@@ -85,7 +81,7 @@ function Song({ musicData }) {
 
                 <h1>{song.title}</h1>
                 <h2>{song.artists}</h2>
-                <FavoriteButton song={song} />
+                <FavoriteButton song={song} isFavorite={isFavorite} setIsFavorite={setIsFavorite} />
                 <p>Year: {song.year}</p>
                 <pre>{lyrics}</pre>
             </div>
