@@ -55,16 +55,14 @@ import {searchForSong, searchForGif, searchForLyrics, searchAllSongs} from './sr
         // console.log('Req', req)
         const title = req.query.title;
         const artist = req.query.artist
-        
+
+        console.log('Received request for', title, artist)
         if (!title || !artist) {
             res.status(400).json({ error: 'Missing query parameter' });
             return;
         }
         
-        const response = await searchForLyrics({title, artist})
-        console.log('Lyrics', response)
-        // const gif = response.data
-
+        let response = await searchForLyrics({title, artist})
         res.json({ lyrics:response });
     })
     

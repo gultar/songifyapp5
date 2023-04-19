@@ -4,7 +4,7 @@
   --text-color: white;
   --border-radius: 10px;
   --shadow-color: rgba(0, 0, 0, 0.5);
-  --contrast-color: #e0e0e0;
+  --contrast-color: #b2b2b2;
 }
 
 body {
@@ -91,6 +91,16 @@ body {
   background-color: var(--secondary-color);
   color:var(--text-color);
 }
+
+.mode-btn{
+  background-color: var(--secondary-color);
+  color:var(--text-color);
+}
+
+.light-mode {
+  background-color: var(--secondary-color);
+}
+
 
 .home-btn,
 .favorites-btn {
@@ -183,9 +193,6 @@ input[type="text"] {
   background-color: #ccc;
   color: #fff;
 }
-
-
-
 
 @media screen and (max-width: 768px) {
   .dashboard {

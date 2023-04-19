@@ -36,6 +36,7 @@ function App() {
   
 
   const handleSearchResult = response => {
+    setMusicData({})
     const musicData = response.data
     setMusicData(musicData)
     localStorage.setItem('currentSong', JSON.stringify(musicData))
@@ -47,11 +48,27 @@ function App() {
     if (savedSong) {
       setCurrentSong(JSON.parse(savedSong))
     }
+  
+    // Fetch Bohemian Rhapsody from the API
+    const fetchDefault = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/search', {
+          params: {
+            q: 'Bohemian Rhapsody',
+          },
+        })
+        handleSearchResult(response)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchDefault()
   }, [])
 
   
 
   const handleSearchBarChange = async(e) => {
+    e.preventDefault()
     clearTimeout(searchBarEntryTimeoutId); // clear previous timeout if there is any
   
     setSearchTerm(e.target.value);
@@ -83,14 +100,16 @@ function App() {
   }
 
   const onClickSuggestion = (suggestion) => {
-    setCurrentPage('home')
+    
     clearTimeout(searchBarEntryTimeoutId);
     setSearchTerm(suggestion.title)
+    setCurrentPage('home')
+    //For some reason, useRef and ref.current.submit() doesn't work at all. 
+    //I have to manually press the button to submit the form
+    document.getElementById('search-btn').click();
     setSuggestions([])
-    
-    
     setTimeout(()=>{
-      document.getElementById('search-btn').click();
+      
       setSuggestions([])
       setSearchTerm("")
     }, 500)
@@ -131,7 +150,7 @@ function App() {
           <div class="nav-buttons">
             <button onClick={() => setCurrentPage('home')} class="home-btn">Home</button>
             <button onClick={() => setCurrentPage('favorites')} class="favorites-btn">Favorites</button>
-            <button onClick={handleToggleMode}>
+            <button className="mode-btn" onClick={handleToggleMode}>
               {isDarkMode ? 'Light' : 'Dark'}
             </button>
           </div>
