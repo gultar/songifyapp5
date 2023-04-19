@@ -43,10 +43,10 @@ function Favorites() {
             <ul>
                 {favorites.length > 0 ? (
                     favorites.map((favorite) => (
-                    <li key={favorite.id}>
-                    {favorite.title} - {favorite.artist} ({favorite.year}){" "}
-                    <button onClick={() => handleRemoveFavorite(favorite.id)}>X</button>
-                    </li>
+                        <li key={favorite.id}>
+                            {favorite.title} - {favorite.artist} {" "}
+                            <button onClick={() => handleRemoveFavorite(favorite.id)}>X</button>
+                        </li>
                     ))
                     ) : (
                     <li>No favorites yet!</li>

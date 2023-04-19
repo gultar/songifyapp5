@@ -14,9 +14,10 @@ function App() {
   
   let searchBarEntryTimeoutId;
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-  }
+  const handleToggleMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.body.classList.toggle('dark-mode');
+  };
 
   const handleSearchBarSubmit = async e => {
     e.preventDefault();
@@ -82,9 +83,11 @@ function App() {
   }
 
   const onClickSuggestion = (suggestion) => {
+    setCurrentPage('home')
     clearTimeout(searchBarEntryTimeoutId);
     setSearchTerm(suggestion.title)
     setSuggestions([])
+    
     
     setTimeout(()=>{
       document.getElementById('search-btn').click();
@@ -128,7 +131,9 @@ function App() {
           <div class="nav-buttons">
             <button onClick={() => setCurrentPage('home')} class="home-btn">Home</button>
             <button onClick={() => setCurrentPage('favorites')} class="favorites-btn">Favorites</button>
-            
+            <button onClick={handleToggleMode}>
+              {isDarkMode ? 'Light' : 'Dark'}
+            </button>
           </div>
         </div>
         {currentPage === 'home' ? (
