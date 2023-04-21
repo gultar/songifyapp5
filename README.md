@@ -33,6 +33,13 @@ Then you need to install all necessary dependencies:
 npm install
 ```
 
+You will also need to add your API keys for Genius and Giphy to a .env file at the root of the project like so :
+
+VITE_CLIENT_ID="..."
+VITE_CLIENT_SECRET="..."
+VITE_SESSION_TOKEN="..."
+VITE_GIPHY_API_KEY="..."
+
 ## Running
 
 You can start the application by running the command:
