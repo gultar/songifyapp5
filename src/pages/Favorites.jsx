@@ -45,7 +45,7 @@ function Favorites() {
                     favorites.map((favorite) => (
                         <li key={favorite.id}>
                             {favorite.title} - {favorite.artist} {" "}
-                            <button onClick={() => handleRemoveFavorite(favorite.id)}>X</button>
+                            <button className="remove-favorite-btn" onClick={() => handleRemoveFavorite(favorite.id)}>X</button>
                         </li>
                     ))
                     ) : (

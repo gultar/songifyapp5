@@ -38,12 +38,12 @@ const FavoriteButton = ({ song }) => {
       {isFavorite ? (
         <>
           
-          <button onClick={toggleFavorite}>-</button>Remove from favorites:
+          <button className="add-favorite-btn" onClick={toggleFavorite}>-</button> Remove from favorites:
         </>
       ) : (
         <>
           
-          <button onClick={toggleFavorite}>+</button>Add to favorites:
+          <button className="add-favorite-btn" onClick={toggleFavorite}>+</button> Add to favorites:
         </>
       )}
     </label>

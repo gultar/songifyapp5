@@ -2,7 +2,6 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import FavoriteButton from '../components/FavoriteButton';
 
-
 const getGif = async (searchTerm) => {
     try {
       const response = await axios.get("http://localhost:3000/getGif", {
@@ -28,53 +27,27 @@ const getTopWords = (words) => {
     });
     
     const sortedWords = Object.keys(freqMap).sort(function(a, b) {
+        
         return freqMap[b] - freqMap[a];
     });
     
-    return sortedWords.slice(0, 10);
-}
-
-
-async function getTopWordsGifs(lyrics) {
-    // Remove punctuation and convert to lowercase
-    const cleanedLyrics = lyrics.replace(/[^\w\s]/gi, '').toLowerCase();
-    // Split into words
-    const words = cleanedLyrics.split(/\s+/);
-    // Count the frequency of each word
-    const frequencies = {};
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      if (frequencies[word]) {
-        frequencies[word]++;
-      } else {
-        frequencies[word] = 1;
-      }
-    }
-    // Sort the words by frequency and get the top 10
-    const topWords = Object.keys(frequencies).sort((a, b) => frequencies[b] - frequencies[a]).slice(0, 10);
-    // Get a GIF for each word
-    const gifs = [];
-    for (let i = 0; i < topWords.length; i++) {
-      const word = topWords[i];
-      try {
-        const gifSrc = await getGif(word);
-        gifs.push({ word, gifSrc });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    return gifs;
-  }      
+    return sortedWords.filter((word, index) => index < 12 && !sortedWords.slice(0, index).includes(word));
+}; 
   
 
 const extractSongFromData = (musicData)=>{
+    if(!musicData){
+        console.log('Music data provided is invalid', musicData)
+        return {}
+    }
+
     let song = {
         player:musicData.apple_music_player_url,
         artists:musicData.artist_names,
         title:musicData.full_title,
         id:musicData.id,
         lyrics:musicData.url,
-        data:musicData.release_date_for_display
+        release:musicData.release_date_for_display
     }
 
     return song
@@ -87,12 +60,12 @@ function Song({ musicData }) {
     const [isFavorite, setIsFavorite] = useState(false)
     const [words, setWords] = useState([]);
     const [song, setSong] = useState({})
-    
-    
+    const [wordToGif, setWordToGif] = useState({})
     
     useEffect(()=>{
         setSong(extractSongFromData(musicData))
     }, [musicData])
+
     const title = song.title
     const artist = song.artists
 
@@ -106,7 +79,6 @@ function Song({ musicData }) {
            topWords.map(async (word) => {
               try {
                 const gifSrc = await getGif(word);
-                console.log('Gif', gifSrc)
                 return { word, gifSrc };
               } catch (error) {
                 console.log(error);
@@ -114,13 +86,13 @@ function Song({ musicData }) {
               }
             })
           );
-          console.log('gifSrcs',gifSrcs)
           
           setGifSrcs(gifSrcs);
+          mapWordToGif()
     }
 
     const getLyrics = async (title, artist) => {
-        console.log('Lyrics get', title, artist)
+        
         try {
           const response = await axios.get("http://localhost:3000/getLyrics", {
             params: {
@@ -128,27 +100,65 @@ function Song({ musicData }) {
               artist: artist,
             },
           });
-          console.log('Response for lyrics', response)
+          
           let { lyrics } = response.data;
           if(lyrics === null){
-            //dangerous
             lyrics = "No lyrics could be found"
           }
 
           setLyrics(lyrics);
 
-          const sortedLyrics = lyrics.toLowerCase().replace(/[^\w\s]/g, "").split(" ")
-          const topWords = sortedLyrics.slice(0, 10)
-          console.log('Top words', topWords)
+          const lyricsArray = lyrics.toLowerCase().replace(/[^\w\s]/g, "").split(" ")
+          const topWords = getTopWords(lyricsArray)
+          setWords(topWords)
           fetchAllGifs(topWords)
         } catch (error) {
           console.log(error);
         }
       };
+
+      const mapWordToGif = () =>{
+        const gifMap = {}
+
+        for(var i=0; i<words.length; i++){
+            gifMap[words[i]] = gifSrcs[i]
+        }
+
+        console.log(gifMap)
+      }
     
 
     return (
         <div className="song-container">
+            
+            <div className="song-details">
+
+                <h1>{song.title}</h1>
+                <h2>{song.artists}</h2>
+                <FavoriteButton song={song} isFavorite={isFavorite} setIsFavorite={setIsFavorite} />
+                <p>Released: {song.release}</p>
+                <div>
+                    <h3>Top 12 Words:</h3>
+                    {
+                        getTopWords(words).map((word, index) => (
+                            <span key={index}>{word} </span>
+                        ))
+                    }
+                </div>
+                <h3>Lyrics:</h3>
+                <pre className="lyrics-box">
+                    {lyrics.split(" ").map((word, index) => (
+                        <span
+                            key={index}
+                            style={{
+                                textDecoration: words.includes(word.toLowerCase()) ? "underline" : "none",
+                            }}
+                        >
+                        {`${word} `}
+                        </span>
+                    ))}
+                </pre>
+            </div>
             <div className="music-player">
                 <iframe
                 title={song.title}
@@ -159,45 +169,14 @@ function Song({ musicData }) {
                 frameBorder="0"
                 allowFullScreen
                 />
-                <h3>Top 10 Words:</h3>
-                <div style={{ display: "flex" }}>
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        {gifSrcs.slice(0, 4).map((gifSrc, index) => (
-                            <div key={index}>
-                                <img src={gifSrc?.gifSrc} alt="" height="100" />
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        {gifSrcs.slice(4, 8).map((gifSrc, index) => (
-                            <div key={index}>
-                                <img src={gifSrc?.gifSrc} alt="" height="100" />
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        {gifSrcs.slice(8, 10).map((gifSrc, index) => (
-                            <div key={index}>
-                                <img src={gifSrc?.gifSrc} alt="" height="100" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-            </div>
-            <div className="song-details">
-
-                <h1>{song.title}</h1>
-                <h2>{song.artists}</h2>
-                <FavoriteButton song={song} isFavorite={isFavorite} setIsFavorite={setIsFavorite} />
-                <p>Year: {song.year}</p>
-                <div>
-                    <h3>Top 10 Words:</h3>
-                    {getTopWords(words).map((word, index) => (
-                        <span key={index}>{word} </span>
+                <h3>Top 12 GIFs:</h3>
+                <div className="gif-grid">
+                    {gifSrcs.map((gifSrc, index) => (
+                        <div class="gif-cell" key={index}>
+                            <img src={gifSrc?.gifSrc} alt="" height="100" />
+                        </div>
                     ))}
                 </div>
-                <pre>{lyrics}</pre>
             </div>
         </div>
     );

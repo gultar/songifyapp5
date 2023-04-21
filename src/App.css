@@ -14,10 +14,15 @@ body {
   transition: background-color 0.5s ease;
 }
 
+button{
+  color:var(--text-color);
+}
+
 .App.light-mode {
   --primary-color: #f5f5f5;
   --secondary-color: var(--contrast-color);
   --text-color: #2b2b2b;
+  --contrast-color: rgb(191, 191, 191);
 }
 
 .App.light-mode .search-bar {
@@ -32,12 +37,9 @@ body {
   width: 90%;
   height: 90%;
   background-color: var(--secondary-color);
-  /* border-radius: var(--border-radius); */
   box-shadow: 0px 0px 10px var(--shadow-color);
   transition: background-color 0.5s ease;
-  /* border-radius: 10px; */
   overflow-y: scroll;
-  overflow-x: hidden;
 }
 
 .song-container{
@@ -71,35 +73,83 @@ body {
   color:var(--text-color);
 }
 
+.gif-grid{
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.gif-cell{
+  padding: 10px;
+}
 
 .dashboard.light-mode {
   background-color: var(--primary-color);
   color:var(--text-color);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  background-color: var(--primary-color);
-  color:var(--text-color);
-  /* border-radius: 10px 10px 0px 0px; */
-}
-
-.header.light-mode {
-  background-color: var(--secondary-color);
-  color:var(--text-color);
-}
-
-.mode-btn{
-  background-color: var(--secondary-color);
-  color:var(--text-color);
-}
 
 .light-mode {
   background-color: var(--secondary-color);
 }
+
+
+.topnav {
+  display: flex;
+  gap:10px;
+  flex-direction: row;
+  justify-content: flex-end;
+  background-color: var(--primary-color);
+  color:var(--text-color);
+  overflow: hidden;
+  width: 100%;
+}
+
+.topnav.light-mode {
+  background-color: var(--secondary-color);
+  color:var(--text-color);
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  color:var(--text-color);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  border: 1px solid var(--contrast-color);
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.topnav a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+.nav-btns{
+  display: flex;
+  flex-direction: row;
+}
+
+.app-title{
+  display: inline-block;
+}
+
+.mode-btn{
+  background-color: var(--primary-color);
+  color:var(--text-color);
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
 
 
 .home-btn,
@@ -114,18 +164,35 @@ body {
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
+.add-favorite-btn{
+  width:48px;
+  padding: 10px 20px;
+  text-align: center;
+  background-color: var(--primary-color);
+}
+
 .home-btn:hover,
 .favorites-btn:hover {
   background-color: var(--secondary-color);
   color: var(--text-color);
 }
 
+
 .search-form {
   margin: 0;
 }
 
+.search-bar-container{
+  display: flex;
+  width:100%;
+  justify-content: center;
+  padding-top: 10px;
+}
+
 .search-bar {
   position: relative;
+  display: flex;
+  width: 50%;
   background-color: var(--contrast-color);
   border-radius: 5px;
   padding: 10px 60px 10px 20px;
@@ -194,6 +261,82 @@ input[type="text"] {
   color: #fff;
 }
 
+
+
+
+/* When the screen is less than 600 pixels wide, hide all links, except for the first one ("Home"). Show the link that contains should open and close the topnav (.icon) */
+@media screen and (max-width: 1100px) {
+
+
+  .logo{
+    display: none;
+  }
+
+  .header{
+    flex-direction: column;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .nav-buttons{
+    width:99%;
+    flex-direction: column;
+  }
+
+  .search-bar-container{
+    padding-top: 50px;
+    
+  }
+
+  .search-bar{
+    font-size: 5pt;
+  }
+  
+  .topnav{
+    flex-direction: column;
+    justify-content: center;
+    padding: 0px;
+    border-bottom: 3px solid var(--primary-color);;
+  }
+
+  .topnav a{
+    justify-content: center;
+    color:var(--text-color);
+  }
+
+  .music-player{
+    display: flex;
+    /* flex-direction: column; */
+    padding: 5px;
+    gap: 10px;
+    width: 90%;
+    color:var(--text-color);
+  }
+
+  .song-container{
+    padding: 5px;
+  }
+
+  .gif-grid{
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gif-cell{
+    padding: 5px;
+  }
+
+  .mode-btn{
+    background-color: var(--primary-color);
+  }
+
+  .mode-btn.light-mode{
+    background-color: var(--primary-color);
+  }
+
+}
+
 @media screen and (max-width: 768px) {
   .dashboard {
     width: 100%;
@@ -207,4 +350,18 @@ input[type="text"] {
     flex-direction: column;
     
   }
+
+  .gif-grid{
+    display: flex;
+    flex-direction: column;
+    
+    
+  }
+
+  .gif-cell{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+  
 }

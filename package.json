@@ -17,6 +17,7 @@
     "genius-lyrics-api": "^3.2.0",
     "npm-run-all": "^4.1.5",
     "react": "^18.2.0",
+    "react-burger-menu": "^3.0.9",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0"
   },
